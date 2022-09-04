@@ -1,7 +1,9 @@
+import time
+
 from devices.neuroscan import NeuroScan
 
 class RSVP_Offline:
-    def __init__(self, exp_settiing):
+    def __init__(self):
         super(RSVP_Offline, self).__init__()
         self.__device = []
 
@@ -60,3 +62,10 @@ class RSVP_Offline:
         self.end_pic = studyInfo['end_pic']
         self.target_pic_list = studyInfo['target_pic_list']
         self.non_target_pic_list = studyInfo['non_target_pic_list']
+
+    def startStudy(self):
+        self.start_time = time.time()
+        for i in range(len(self.__device)):
+            self.__device[i].startSendData()
+
+
