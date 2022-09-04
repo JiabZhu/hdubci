@@ -30,16 +30,16 @@ def first_post():
     return jsonify(name=name, age=age, code=200)
 
 
-@app.route('/test/rsvp_offline', methods=['POST'])
+@app.route('/rsvp_offline', methods=['GET'])
 def rsvp_offline():
     global exp_paradigm
+    exp_paradigm = RSVP_Offline()
+    return 'rsvp study paradigm'
 
-    json = request.get_json()
-    print(json)
-    rsvp = RSVP_Offline()
-
-    exp_paradigm = rsvp
-    return "success"
+@app.route('/rsvp_offline/adddevice', methods=['POST'])
+def rsvp_offline_addDevice():
+    deviceInfo =  request.get_json()
+    print(deviceInfo)
 
 
 if __name__ == '__main__':
