@@ -68,7 +68,6 @@ class NeuroScan:
             while (len(buffer) < body_len):
                 buffer += self.__sock.recv(body_len - len(buffer))
         self.__setBasicInfo(struct.unpack('<6If', buffer))
-        print(self.basic_info)
 
     def recvEEGData(self):
         while self.__f_recvData:
