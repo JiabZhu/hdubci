@@ -36,11 +36,32 @@ def rsvp_offline():
     exp_paradigm = RSVP_Offline()
     return 'rsvp study paradigm'
 
+
 @app.route('/rsvp_offline/adddevice', methods=['POST'])
 def rsvp_offline_addDevice():
-    deviceInfo =  request.get_json()
+    deviceInfo = request.get_json()
     print(deviceInfo)
+    return "rsvp paradigm add device"
+
+
+@app.route('/rsvp_offline/setstudy', methods=['POST'])
+def rsvp_offline_setStudy():
+    studyInfo = request.get_json()
+    exp_paradigm.setStudy(studyInfo)
+
+    return "rsvp paradigm set study"
+
+
+@app.route('/rsvp_offline/readystudy', methods=['GET'])
+def rsvp_offline_readyStudy():
+    exp_paradigm.readyStudy()
+    return 'study ready'
+
+@app.route('/rsvp_offline/startstudy', methods=['GET'])
+def rsvp_offline_startStudy():
+    exp_paradigm.startStudy()
+    return 'study starting'
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=10087)
+    app.run(host="0.0.0.0", port=5000)
