@@ -6,8 +6,7 @@ from flask_socketio import SocketIO
 exp_paradigm = None
 
 app = Flask(__name__)
-socketio = SocketIO(app, async_mode=None)
-
+socketio = SocketIO(app, cors_allowed_origins='*')
 
 @app.route('/')
 def hello_world():  # put application's code here
@@ -66,6 +65,16 @@ def rsvp_offline_startStudy():
     return 'study starting'
 
 
+@socketio.on('connect', namespace='/test')  # 有客户端连接会触发该函数
+def on_connect():
+   print('connect')
+
+
+@socketio.on('sendPic')
+def sendPic(pic):
+    socketio.emit('pic', pic)
+
 if __name__ == '__main__':
+
     # app.run(host="0.0.0.0", port=5000)
-    socketio.run(app, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=9999)
