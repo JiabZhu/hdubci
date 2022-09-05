@@ -1,9 +1,12 @@
 from flask import Flask, redirect, request, jsonify
 from paradigms.rsvp_offline import RSVP_Offline
 
+from flask_socketio import SocketIO
+
 exp_paradigm = None
 
 app = Flask(__name__)
+socketio = SocketIO(app, async_mode=None)
 
 
 @app.route('/')
@@ -64,4 +67,5 @@ def rsvp_offline_startStudy():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    # app.run(host="0.0.0.0", port=5000)
+    socketio.run(app, host='0.0.0.0', port=5000)
