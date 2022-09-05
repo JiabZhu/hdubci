@@ -1,9 +1,8 @@
 import time
 import socket
 import struct
-import threading
 import numpy as np
-
+from threading import Thread
 
 class NeuroScan:
     def __init__(self):
@@ -15,6 +14,8 @@ class NeuroScan:
         self.__f_recvData = False
         self.__EEG_data = np.array([])
         self.__recv_data_thread = None
+
+
 
     def __setPacketHead(self, tuple):
         self.__packet_header = {'m_chId': tuple[0], 'm_wCode': tuple[1],
@@ -49,7 +50,7 @@ class NeuroScan:
     def startSendData(self):
         self.sendCmd(b'CTRL', 3, 3)
         self.__f_recvData = True
-        self.__recv_data_thread = threading.Thread(target=self.recvEEGData)
+        self.__recv_data_thread = Thread(target=self.recvEEGData)
         self.__recv_data_thread.start()
 
     def stopSendData(self):
@@ -60,6 +61,8 @@ class NeuroScan:
     def getEDFHeader(self):
         self.sendCmd(b'CTRL', 3, 5)
         buffer = self.__sock.recv(12)
+
+
         self.__setPacketHead(struct.unpack('>4sHHI', buffer))
 
         buffer = b''
