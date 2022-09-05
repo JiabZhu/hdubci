@@ -126,4 +126,5 @@ class RSVP_Offline:
         # 保存数据
         # for i in range(len(self.__device)):
         #     self.__device[i].saveData(mark=self.__mark)
+        1
 
