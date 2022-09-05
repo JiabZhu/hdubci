@@ -3,9 +3,8 @@ import random
 import numpy as np
 from threading import Thread
 
-from app import socketio
+import app
 from devices.neuroscan import NeuroScan
-
 
 class RSVP_Offline:
     def __init__(self):
@@ -107,6 +106,7 @@ class RSVP_Offline:
 
             for i in range(len(pic_list)):
                 self.__mark.append([time.time(), pic_list[i][1]])
+                app.sendPic(123)
                 print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), pic_list[i])
                 time.sleep(self.pic_duration)
 
@@ -127,6 +127,3 @@ class RSVP_Offline:
         # for i in range(len(self.__device)):
         #     self.__device[i].saveData(mark=self.__mark)
 
-    @socketio.on('connect', namespace='/picshow')
-    def sendPic(self):
-        print(1)
