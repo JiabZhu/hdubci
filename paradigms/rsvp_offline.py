@@ -106,7 +106,8 @@ class RSVP_Offline:
 
             for i in range(len(pic_list)):
                 self.__mark.append([time.time(), pic_list[i][1]])
-                app.sendPic(123)
+                app.call_send_pic(21232)
+                # app.sendPic(123)
                 print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), pic_list[i])
                 time.sleep(self.pic_duration)
 

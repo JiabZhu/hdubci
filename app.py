@@ -1,12 +1,13 @@
-from flask import Flask, redirect, request, jsonify
-from paradigms.rsvp_offline import RSVP_Offline
+from flask_socketio import SocketIO, emit
+from flask import Flask, redirect, request, jsonify, url_for
 
-from flask_socketio import SocketIO
+import paradigms.rsvp_offline as rsvp_offline
 
 exp_paradigm = None
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*')
+
 
 @app.route('/')
 def hello_world():  # put application's code here
@@ -33,9 +34,9 @@ def first_post():
 
 
 @app.route('/rsvp_offline', methods=['GET'])
-def rsvp_offline():
+def rsvp_paradigm_offline():
     global exp_paradigm
-    exp_paradigm = RSVP_Offline()
+    exp_paradigm = rsvp_offline.RSVP_Offline()
     return 'rsvp study paradigm'
 
 
@@ -59,22 +60,22 @@ def rsvp_offline_readyStudy():
     exp_paradigm.readyStudy()
     return 'study ready'
 
+
 @app.route('/rsvp_offline/startstudy', methods=['GET'])
 def rsvp_offline_startStudy():
     exp_paradigm.startStudy()
     return 'study starting'
 
+@app.route('/sendpic')
+def send_pic(pic):
+    socketio.emit('send pic', pic)
 
-@socketio.on('connect', namespace='/test')  # 有客户端连接会触发该函数
-def on_connect():
-   print('connect')
+def call_send_pic(pic):
+    return url_for("api.send_pic", pic=pic)
+@socketio.on('my event')
+def test_connect(json):
+    print('received json:' + str(json))
 
-
-@socketio.on('sendPic')
-def sendPic(pic):
-    socketio.emit('pic', pic)
 
 if __name__ == '__main__':
-
-    # app.run(host="0.0.0.0", port=5000)
-    socketio.run(app, host='0.0.0.0', port=9999)
+    socketio.run(app, host='0.0.0.0', port=5000)
