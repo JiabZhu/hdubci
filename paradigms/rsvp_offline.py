@@ -2,6 +2,7 @@ import time
 import random
 import numpy as np
 from threading import Thread
+import requests
 
 import app
 from devices.neuroscan import NeuroScan
@@ -106,7 +107,8 @@ class RSVP_Offline:
 
             for i in range(len(pic_list)):
                 self.__mark.append([time.time(), pic_list[i][1]])
-                app.call_send_pic(21232)
+                requests.get('http://127.0.0.1:5000/sendpic/123456')
+                # app.call_send_pic(21232)
                 # app.sendPic(123)
                 print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), pic_list[i])
                 time.sleep(self.pic_duration)

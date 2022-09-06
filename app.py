@@ -19,11 +19,6 @@ def hey(username):
     return "hey %s" % username
 
 
-@app.route('/baidu/')
-def baidu():
-    return redirect('https://www.baidu.com')
-
-
 @app.route('/test/my/first', methods=['POST'])
 def first_post():
     my_json = request.get_json()
@@ -66,12 +61,11 @@ def rsvp_offline_startStudy():
     exp_paradigm.startStudy()
     return 'study starting'
 
-@app.route('/sendpic')
+@app.route('/sendpic', methods=['POST'])
 def send_pic(pic):
-    socketio.emit('send pic', pic)
+    socketio.emit('dcenter', pic)
+    return "send pic success"
 
-def call_send_pic(pic):
-    return url_for("api.send_pic", pic=pic)
 @socketio.on('my event')
 def test_connect(json):
     print('received json:' + str(json))
