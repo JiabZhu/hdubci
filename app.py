@@ -1,5 +1,7 @@
+import json
+
+from flask import Flask, request
 from flask_socketio import SocketIO, emit
-from flask import Flask, redirect, request, jsonify, url_for
 
 import paradigms.rsvp_offline as rsvp_offline
 
@@ -7,25 +9,6 @@ exp_paradigm = None
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*')
-
-
-@app.route('/')
-def hello_world():  # put application's code here
-    return 'Hello World!'
-
-
-@app.route('/hey/<username>')
-def hey(username):
-    return "hey %s" % username
-
-
-@app.route('/test/my/first', methods=['POST'])
-def first_post():
-    my_json = request.get_json()
-    print(my_json)
-    name = my_json.get("name")
-    age = my_json.get("age")
-    return jsonify(name=name, age=age, code=200)
 
 
 @app.route('/rsvp_offline', methods=['GET'])
@@ -38,7 +21,6 @@ def rsvp_paradigm_offline():
 @app.route('/rsvp_offline/adddevice', methods=['POST'])
 def rsvp_offline_addDevice():
     deviceInfo = request.get_json()
-    print(deviceInfo)
     return "rsvp paradigm add device"
 
 
@@ -46,7 +28,6 @@ def rsvp_offline_addDevice():
 def rsvp_offline_setStudy():
     studyInfo = request.get_json()
     exp_paradigm.setStudy(studyInfo)
-
     return "rsvp paradigm set study"
 
 
@@ -61,10 +42,24 @@ def rsvp_offline_startStudy():
     exp_paradigm.startStudy()
     return 'study starting'
 
-@app.route('/sendpic', methods=['POST'])
-def send_pic(pic):
-    socketio.emit('dcenter', pic)
-    return "send pic success"
+
+@app.route('/sendstipic', methods=['POST'])
+def send_sti_pic():
+    emit('stipic', request.get_json())
+    return "send sti pic success"
+
+
+@app.route('/sendfixpic', methods=['GET'])
+def send_fix_pic():
+    emit('fixpic', json.dumps('show fixation pic'))
+    return "send fixation pic success"
+
+
+@app.route('/sendendxpic', methods=['GET'])
+def send_end_pic():
+    emit('endpic', 'show end pic')
+    return "send end pic success"
+
 
 @socketio.on('my event')
 def test_connect(json):

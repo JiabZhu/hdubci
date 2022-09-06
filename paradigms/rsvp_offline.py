@@ -1,11 +1,12 @@
+import json
 import time
 import random
+import requests
 import numpy as np
 from threading import Thread
-import requests
 
-import app
 from devices.neuroscan import NeuroScan
+
 
 class RSVP_Offline:
     def __init__(self):
@@ -20,17 +21,17 @@ class RSVP_Offline:
         self.target_proportion = -1
         self.non_target_proportion = -1
         self.trial_num = -1
-        self.rest_trial_num = -1
+        # self.rest_trial_num = -1
 
         self.target_mark = -1
         self.non_target_mark = -1
 
         self.fixation_duration = -1
         self.pic_duration = -1
-        self.rest_duration = -1
+        # self.rest_duration = -1
 
         self.fixation_pic = ''
-        self.rest_pic = ''
+        # self.rest_pic = ''
         self.end_pic = ''
         self.target_pic_list = []
         self.non_target_pic_list = []
@@ -68,17 +69,17 @@ class RSVP_Offline:
         self.non_target_proportion = studyInfo['non_target_proportion']
 
         self.trial_num = studyInfo['trial_num']
-        self.rest_trial_num = studyInfo['rest_trial_num']
+        # self.rest_trial_num = studyInfo['rest_trial_num']
 
         self.target_mark = studyInfo['target_mark']
         self.non_target_mark = studyInfo['non_target_mark']
 
         self.fixation_duration = studyInfo['fixation_duration']
         self.pic_duration = studyInfo['pic_duration']
-        self.rest_duration = studyInfo['rest_duration']
+        # self.rest_duration = studyInfo['rest_duration']
 
         self.fixation_pic = studyInfo['fixation_pic']
-        self.rest_pic = studyInfo['rest_pic']
+        # self.rest_pic = studyInfo['rest_pic']
         self.end_pic = studyInfo['end_pic']
         self.target_pic_list = studyInfo['target_pic_list']
         self.non_target_pic_list = studyInfo['non_target_pic_list']
@@ -95,10 +96,12 @@ class RSVP_Offline:
 
     def showStimulus(self):
         print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), self.fixation_pic)
+        self.__request_show_fixation_pic()
         time.sleep(self.fixation_duration)
 
         cnt_trial = 0
         while (cnt_trial < self.trial_num):
+            # 图片列表加入目标与非目标刺激，并打乱顺序
             pic_list = [[random.randint(0, len(self.target_pic_list) - 1), self.target_mark]
                         for _ in range(self.target_proportion)]
             pic_list.extend([[random.randint(0, len(self.non_target_pic_list) - 1), self.non_target_mark]
@@ -107,9 +110,7 @@ class RSVP_Offline:
 
             for i in range(len(pic_list)):
                 self.__mark.append([time.time(), pic_list[i][1]])
-                requests.get('http://127.0.0.1:5000/sendpic/123456')
-                # app.call_send_pic(21232)
-                # app.sendPic(123)
+                self.__request_show_sti_pic(pic=self.__get_pic_name_mark(pic_list[i]))
                 print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), pic_list[i])
                 time.sleep(self.pic_duration)
 
@@ -117,10 +118,11 @@ class RSVP_Offline:
                 if not cnt_trial < self.trial_num:
                     break
 
-                if cnt_trial % self.rest_trial_num == 0:
-                    print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), self.rest_pic)
-                    time.sleep(self.rest_duration)
+                # if cnt_trial % self.rest_trial_num == 0:
+                #     print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), self.rest_pic)
+                #     time.sleep(self.rest_duration)
 
+        self.__request_show_end_pic()
         print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), self.end_pic)
         for i in range(len(self.__mark)):
             self.__mark[i][0] = self.__mark[i][0] - self.start_time
@@ -130,3 +132,19 @@ class RSVP_Offline:
         # for i in range(len(self.__device)):
         #     self.__device[i].saveData(mark=self.__mark)
 
+    def __request_show_fixation_pic(self):
+        requests.get(url='http://127.0.0.1:5000/sendfixpic')
+
+    def __request_show_end_pic(self):
+        requests.get(url='http://127.0.0.1:5000/sendendpic')
+
+    def __request_show_sti_pic(self, pic={}):
+        requests.post(url='http://127.0.0.1:5000/sendstipic', json=json.dumps(pic))
+
+    def __get_pic_name_mark(self, pic_info):
+        idx = pic_info[0]
+        mark = pic_info[1]
+        if mark == self.target_mark:
+            return {'pic': self.target_pic_list[idx], 'mark': mark}
+        elif mark == self.non_target_mark:
+            return {'pic': self.non_target_pic_list[idx], 'mark': mark}
