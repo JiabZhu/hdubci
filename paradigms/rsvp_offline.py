@@ -123,10 +123,10 @@ class RSVP_Offline:
                 #     time.sleep(self.rest_duration)
 
         self.__request_show_end_pic()
-        print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), self.end_pic)
+        # print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), self.end_pic)
         for i in range(len(self.__mark)):
             self.__mark[i][0] = self.__mark[i][0] - self.start_time
-        print(self.__mark)
+        # print(self.__mark)
 
         # 保存数据
         # for i in range(len(self.__device)):
