@@ -138,7 +138,7 @@ class RSVP_Offline:
     def __request_show_end_pic(self):
         requests.get(url='http://127.0.0.1:5000/sendendpic')
 
-    def __request_show_sti_pic(self, pic={}):
+    def __request_show_sti_pic(self, pic):
         requests.post(url='http://127.0.0.1:5000/sendstipic', json=json.dumps(pic))
 
     def __get_pic_name_mark(self, pic_info):
@@ -147,4 +147,4 @@ class RSVP_Offline:
         if mark == self.target_mark:
             return {'pic': self.target_pic_list[idx], 'mark': mark}
         elif mark == self.non_target_mark:
-            return {'pic': self.non_target_pic_list[idx], 'mark': mark}
+            return dict({'pic': self.non_target_pic_list[idx], 'mark': mark})
