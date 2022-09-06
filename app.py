@@ -1,7 +1,5 @@
-import json
-
 from flask import Flask, request
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO
 
 import paradigms.rsvp_offline as rsvp_offline
 
@@ -45,19 +43,19 @@ def rsvp_offline_startStudy():
 
 @app.route('/sendstipic', methods=['POST'])
 def send_sti_pic():
-    emit('stipic', request.get_json())
+    socketio.emit('sti pic', request.get_json())
     return "send sti pic success"
 
 
 @app.route('/sendfixpic', methods=['GET'])
 def send_fix_pic():
-    emit('fixpic', json.dumps('show fixation pic'))
+    socketio.emit('fixation pic', 'show fixation pic')
     return "send fixation pic success"
 
 
-@app.route('/sendendxpic', methods=['GET'])
+@app.route('/sendendpic', methods=['GET'])
 def send_end_pic():
-    emit('endpic', 'show end pic')
+    socketio.emit('end pic', 'show end pic')
     return "send end pic success"
 
 
