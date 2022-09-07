@@ -1,6 +1,7 @@
 import time
 import socket
 import struct
+import scipy.io
 import numpy as np
 from threading import Thread
 
@@ -97,5 +98,12 @@ class NeuroScan:
         self.__EEG_data = self.__EEG_data.transpose()
 
     def save_data(self, mark):
-        print(self.__EEG_data.shape)
-        pass
+        time_stamps = (mark[:, 0] * self.basic_info['nRate']).astype(int)
+        tag = mark[:, 1]
+        print(time_stamps[-1])
+        self.__EEG_data[self.basic_info['nEegChan']] = 0
+        for i in range(len(tag)):
+            self.__EEG_data[self.basic_info['nEegChan']][time_stamps[i]] = tag[i]
+
+        scipy.io.savemat('./data/2022-9-7.mat', {'data': self.__EEG_data})
+        print('save EEG data finish! EEG data shape: ', self.__EEG_data.shape)
