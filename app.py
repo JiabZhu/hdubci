@@ -29,6 +29,7 @@ def rsvp_offline_add_device():
     :return:
     """
     device_info = request.get_json()
+    print(device_info)
     exp_paradigm.add_device(device_info)
     return "rsvp paradigm add device"
 
