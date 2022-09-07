@@ -90,8 +90,8 @@ class RsvpOffline:
     def ready_study(self):
         self.start_time = time.time()
         print('start time: ', time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()))
-        # for i in range(len(self.__device)):
-        #     self.__device[i].startSendData()
+        for i in range(len(self.__device)):
+            self.__device[i].start_send_data()
 
     def start_study(self):
         self.__show_stimulus_thread = Thread(target=self.show_stimulus)
@@ -131,9 +131,12 @@ class RsvpOffline:
             self.__mark[i][0] = self.__mark[i][0] - self.start_time
         # print(self.__mark)
 
-        # 保存数据
-        # for i in range(len(self.__device)):
-        #     self.__device[i].saveData(mark=self.__mark)
+        # 保存数据，断开连接
+        for i in range(len(self.__device)):
+            self.__device[i].stop_send_data()
+            self.__device[i].save_data(mark=self.__mark)
+            self.__device[i].disconnect()
+
 
     def __request_show_fixation_pic(self):
         requests.get(url=self.__websocket_url + 'sendfixpic')
