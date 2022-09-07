@@ -15,11 +15,8 @@ class RsvpOffline:
 
         self.__websocket_url = config.get_websocket_url()
 
-        self.__mark = []
         self.__device = []
         self.__show_stimulus_thread = None
-
-        self.start_time = -1
 
         self.target_proportion = -1
         self.non_target_proportion = -1
@@ -85,7 +82,6 @@ class RsvpOffline:
         print('start time: ', time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()))
         for i in range(len(self.__device)):
             self.__device[i].start_send_data()
-        self.start_time = time.time()  # 设备开始发送数据，记录起始时间
 
     def start_study(self):
         self.__show_stimulus_thread = Thread(target=self.show_stimulus)
@@ -106,7 +102,8 @@ class RsvpOffline:
             np.random.shuffle(pic_list)
 
             for i in range(len(pic_list)):
-                self.__mark.append([time.time(), pic_list[i][1]])   # 添加mark, [当前时间戳, 图片标签]
+                for dv_id in range(len(self.__device)):
+                    self.__device[dv_id].add_mark([time.time(), pic_list[i][1]])
                 self.__request_show_sti_pic(pic=self.__get_pic_name_mark(pic_list[i]))  # 向前端指定需要发送的刺激图片
                 print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), pic_list[i])
                 time.sleep(self.pic_duration)
@@ -116,13 +113,11 @@ class RsvpOffline:
                     break
 
         self.__request_show_end_pic()
-        for i in range(len(self.__mark)):
-            self.__mark[i][0] = self.__mark[i][0] - self.start_time
 
         # 保存数据，断开连接
         for i in range(len(self.__device)):
             self.__device[i].stop_send_data()
-            self.__device[i].save_data(mark=np.array(self.__mark))
+            self.__device[i].save_data()
             self.__device[i].disconnect()
 
     def __request_show_fixation_pic(self):
