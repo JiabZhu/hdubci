@@ -5,15 +5,15 @@ import requests
 import numpy as np
 from threading import Thread
 
-import app
+import util.config as config
 from devices.neuroscan import NeuroScan
 
 
-class RSVP_Offline:
+class RsvpOffline:
     def __init__(self):
-        super(RSVP_Offline, self).__init__()
+        super(RsvpOffline, self).__init__()
 
-        self.__url = 'http://127.0.0.1:' + str(app.port) + '/'
+        self.__websocket_url = config.get_websocket_url()
 
         self.__mark = []
         self.__device = []
@@ -39,71 +39,71 @@ class RSVP_Offline:
         self.target_pic_list = []
         self.non_target_pic_list = []
 
-    def addDevice(self, deviceInfo):
-        '''
+    def add_device(self, device_info):
+        """
         添加设备
-        :param deviceInfo: 设备信息
+        :param device_info: 设备信息
         :return:
-        '''
+        """
 
         # 清空设备，清除前一次设备添加失败的影响
         self.__device = []
 
         # 添加设备
-        for i in range(deviceInfo['num']):
-            if deviceInfo['type'][i] == 'neuroscan':
+        for i in range(device_info['num']):
+            if device_info['type'][i] == 'neuroscan':
                 self.__device.append(NeuroScan())
 
         # 连接设备
-        for i in range(deviceInfo['num']):
-            self.__device[i].connect(deviceInfo['ip'][i], deviceInfo['port'][i])
+        for i in range(device_info['num']):
+            self.__device[i].connect(device_info['ip'][i], device_info['port'][i])
             # NeuroScan设备连接完毕后开始播放
-            if deviceInfo['type'][i] == 'neuroscan':
-                self.__device[i].startAcquisition()
+            if device_info['type'][i] == 'neuroscan':
+                self.__device[i].start_acquisition()
 
-    def setStudy(self, studyInfo):
-        '''
+    def set_study(self, study_info):
+        """
         设置实验范式
-        :param studyInfo: 实验设置信息
+        :param study_info: 实验设置信息
         :return:
-        '''
-        print(studyInfo)
-        self.target_proportion = studyInfo['target_proportion']
-        self.non_target_proportion = studyInfo['non_target_proportion']
+        """
+        print(study_info)
+        self.target_proportion = study_info['target_proportion']
+        self.non_target_proportion = study_info['non_target_proportion']
 
-        self.trial_num = studyInfo['trial_num']
+        self.trial_num = study_info['trial_num']
         # self.rest_trial_num = studyInfo['rest_trial_num']
 
-        self.target_mark = studyInfo['target_mark']
-        self.non_target_mark = studyInfo['non_target_mark']
+        self.target_mark = study_info['target_mark']
+        self.non_target_mark = study_info['non_target_mark']
 
-        self.fixation_duration = studyInfo['fixation_duration']
-        self.pic_duration = studyInfo['pic_duration']
+        self.fixation_duration = study_info['fixation_duration']
+        self.pic_duration = study_info['pic_duration']
         # self.rest_duration = studyInfo['rest_duration']
 
-        self.fixation_pic = studyInfo['fixation_pic']
+        self.fixation_pic = study_info['fixation_pic']
         # self.rest_pic = studyInfo['rest_pic']
-        self.end_pic = studyInfo['end_pic']
-        self.target_pic_list = studyInfo['target_pic_list']
-        self.non_target_pic_list = studyInfo['non_target_pic_list']
+        self.end_pic = study_info['end_pic']
+        self.target_pic_list = study_info['target_pic_list']
+        self.non_target_pic_list = study_info['non_target_pic_list']
 
-    def readyStudy(self):
+    def ready_study(self):
         self.start_time = time.time()
         print('start time: ', time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()))
         # for i in range(len(self.__device)):
         #     self.__device[i].startSendData()
 
-    def startStudy(self):
-        self.__show_stimulus_thread = Thread(target=self.showStimulus)
+    def start_study(self):
+        self.__show_stimulus_thread = Thread(target=self.show_stimulus)
         self.__show_stimulus_thread.start()
 
-    def showStimulus(self):
+    def show_stimulus(self):
         print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), self.fixation_pic)
         self.__request_show_fixation_pic()
         time.sleep(self.fixation_duration)
 
         cnt_trial = 0
-        while (cnt_trial < self.trial_num):
+        while cnt_trial < self.trial_num:
             # 图片列表加入目标与非目标刺激，并打乱顺序
             pic_list = [[random.randint(0, len(self.target_pic_list) - 1), self.target_mark]
                         for _ in range(self.target_proportion)]
@@ -136,13 +136,13 @@ class RSVP_Offline:
         #     self.__device[i].saveData(mark=self.__mark)
 
     def __request_show_fixation_pic(self):
-        requests.get(url=self.__url+'sendfixpic')
+        requests.get(url=self.__websocket_url + 'sendfixpic')
 
     def __request_show_end_pic(self):
-        requests.get(url=self.__url+'sendendpic')
+        requests.get(url=self.__websocket_url + 'sendendpic')
 
     def __request_show_sti_pic(self, pic):
-        requests.post(url=self.__url+'sendstipic', json=json.dumps(pic))
+        requests.post(url=self.__websocket_url + 'sendstipic', json=json.dumps(pic))
 
     def __get_pic_name_mark(self, pic_info):
         idx = pic_info[0]
