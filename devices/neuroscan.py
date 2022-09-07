@@ -34,6 +34,7 @@ class NeuroScan:
         self.get_edf_header()
 
     def disconnect(self):
+        time.sleep(0.1)
         self.send_cmd(b'CTRL', 1, 2)
         self.__sock.close()
 
@@ -49,13 +50,15 @@ class NeuroScan:
     def start_send_data(self):
         self.send_cmd(b'CTRL', 3, 3)
         self.__f_recvData = True
-        self.__recv_data_thread = Thread(target=self.recv_eeg_data)
+        self.__recv_data_thread = Thread(target=self.__recv_data)
         self.__recv_data_thread.start()
 
     def stop_send_data(self):
         self.__f_recvData = False
         time.sleep(0.2)
         self.send_cmd(b'CTRL', 3, 4)
+        time.sleep(0.1)
+        self.stop_acquisition()
 
     def get_edf_header(self):
         self.send_cmd(b'CTRL', 3, 5)
@@ -70,7 +73,7 @@ class NeuroScan:
                 buffer += self.__sock.recv(body_len - len(buffer))
         self.__set_basic_info(struct.unpack('<6If', buffer))
 
-    def recv_eeg_data(self):
+    def __recv_data(self):
         while self.__f_recvData:
             buffer = self.__sock.recv(12)
 
@@ -93,5 +96,6 @@ class NeuroScan:
                     self.__EEG_data = np.append(self.__EEG_data, data, axis=0)
         self.__EEG_data = self.__EEG_data.transpose()
 
-    def save_eeg_data(self):
+    def save_data(self, mark):
+        print(self.__EEG_data.shape)
         pass
