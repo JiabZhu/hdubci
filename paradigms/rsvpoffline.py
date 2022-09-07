@@ -24,17 +24,14 @@ class RsvpOffline:
         self.target_proportion = -1
         self.non_target_proportion = -1
         self.trial_num = -1
-        # self.rest_trial_num = -1
 
         self.target_mark = -1
         self.non_target_mark = -1
 
         self.fixation_duration = -1
         self.pic_duration = -1
-        # self.rest_duration = -1
 
         self.fixation_pic = ''
-        # self.rest_pic = ''
         self.end_pic = ''
         self.target_pic_list = []
         self.non_target_pic_list = []
@@ -72,26 +69,23 @@ class RsvpOffline:
         self.non_target_proportion = study_info['non_target_proportion']
 
         self.trial_num = study_info['trial_num']
-        # self.rest_trial_num = studyInfo['rest_trial_num']
 
         self.target_mark = study_info['target_mark']
         self.non_target_mark = study_info['non_target_mark']
 
         self.fixation_duration = study_info['fixation_duration']
         self.pic_duration = study_info['pic_duration']
-        # self.rest_duration = studyInfo['rest_duration']
 
         self.fixation_pic = study_info['fixation_pic']
-        # self.rest_pic = studyInfo['rest_pic']
         self.end_pic = study_info['end_pic']
         self.target_pic_list = study_info['target_pic_list']
         self.non_target_pic_list = study_info['non_target_pic_list']
 
     def ready_study(self):
-        self.start_time = time.time()
         print('start time: ', time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()))
         for i in range(len(self.__device)):
             self.__device[i].start_send_data()
+        self.start_time = time.time()  # 设备开始发送数据，记录起始时间
 
     def start_study(self):
         self.__show_stimulus_thread = Thread(target=self.show_stimulus)
@@ -112,8 +106,8 @@ class RsvpOffline:
             np.random.shuffle(pic_list)
 
             for i in range(len(pic_list)):
-                self.__mark.append([time.time(), pic_list[i][1]])
-                self.__request_show_sti_pic(pic=self.__get_pic_name_mark(pic_list[i]))
+                self.__mark.append([time.time(), pic_list[i][1]])   # 添加mark, [当前时间戳, 图片标签]
+                self.__request_show_sti_pic(pic=self.__get_pic_name_mark(pic_list[i]))  # 向前端指定需要发送的刺激图片
                 print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), pic_list[i])
                 time.sleep(self.pic_duration)
 
@@ -121,22 +115,15 @@ class RsvpOffline:
                 if not cnt_trial < self.trial_num:
                     break
 
-                # if cnt_trial % self.rest_trial_num == 0:
-                #     print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), self.rest_pic)
-                #     time.sleep(self.rest_duration)
-
         self.__request_show_end_pic()
-        # print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), self.end_pic)
         for i in range(len(self.__mark)):
             self.__mark[i][0] = self.__mark[i][0] - self.start_time
-        # print(self.__mark)
 
         # 保存数据，断开连接
         for i in range(len(self.__device)):
             self.__device[i].stop_send_data()
-            self.__device[i].save_data(mark=self.__mark)
+            self.__device[i].save_data(mark=np.array(self.__mark))
             self.__device[i].disconnect()
-
 
     def __request_show_fixation_pic(self):
         requests.get(url=self.__websocket_url + 'sendfixpic')
