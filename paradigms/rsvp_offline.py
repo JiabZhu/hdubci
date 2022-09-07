@@ -5,12 +5,15 @@ import requests
 import numpy as np
 from threading import Thread
 
+import app
 from devices.neuroscan import NeuroScan
 
 
 class RSVP_Offline:
     def __init__(self):
         super(RSVP_Offline, self).__init__()
+
+        self.__url = 'http://127.0.0.1:' + str(app.port) + '/'
 
         self.__mark = []
         self.__device = []
@@ -133,13 +136,13 @@ class RSVP_Offline:
         #     self.__device[i].saveData(mark=self.__mark)
 
     def __request_show_fixation_pic(self):
-        requests.get(url='http://127.0.0.1:5000/sendfixpic')
+        requests.get(url=self.__url+'sendfixpic')
 
     def __request_show_end_pic(self):
-        requests.get(url='http://127.0.0.1:5000/sendendpic')
+        requests.get(url=self.__url+'sendendpic')
 
     def __request_show_sti_pic(self, pic):
-        requests.post(url='http://127.0.0.1:5000/sendstipic', json=json.dumps(pic))
+        requests.post(url=self.__url+'sendstipic', json=json.dumps(pic))
 
     def __get_pic_name_mark(self, pic_info):
         idx = pic_info[0]
