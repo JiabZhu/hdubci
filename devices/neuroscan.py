@@ -11,6 +11,8 @@ class NeuroScan:
         super(NeuroScan, self).__init__()
         self.basic_info = {}
 
+        self.__start_time = -1
+        self.__mark = []
         self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__packet_header = {}
         self.__f_recvData = False
@@ -83,6 +85,10 @@ class NeuroScan:
             buffer = b''
             body_len = self.__packet_header['m_dwSize']
             if body_len > 0:
+                # 设备开始发送数据，记录起始时间
+                if self.__start_time == -1:
+                    self.__start_time = time.time()
+
                 while len(buffer) < body_len:
                     buffer += self.__sock.recv(body_len - len(buffer))
                 data_len = body_len / self.basic_info['nDataSize']
@@ -97,13 +103,21 @@ class NeuroScan:
                     self.__EEG_data = np.append(self.__EEG_data, data, axis=0)
         self.__EEG_data = self.__EEG_data.transpose()
 
-    def save_data(self, mark):
-        time_stamps = (mark[:, 0] * self.basic_info['nRate']).astype(int)
-        tag = mark[:, 1]
+    def save_data(self):
+        self.__mark = np.array(self.__mark)
+        for i in range(len(self.__mark)):
+            self.__mark[i][0] = (self.__mark[i][0] - self.__start_time) * self.basic_info['nRate']
+
+        time_stamps = self.__mark[:, 0].astype(int)
+        tag = self.__mark[:, 1]
         print(time_stamps[-1])
+
         self.__EEG_data[self.basic_info['nEegChan']] = 0
         for i in range(len(tag)):
             self.__EEG_data[self.basic_info['nEegChan']][time_stamps[i]] = tag[i]
 
         scipy.io.savemat('./data/2022-9-7.mat', {'data': self.__EEG_data})
         print('save EEG data finish! EEG data shape: ', self.__EEG_data.shape)
+
+    def add_mark(self, mark):
+        self.__mark.append(mark)  # 添加mark, [当前时间戳, mark值]
