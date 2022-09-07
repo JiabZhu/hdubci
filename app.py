@@ -6,6 +6,7 @@ import paradigms.rsvp_offline as rsvp_offline
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*')
 
+port = 19782
 exp_paradigm = None
 
 
@@ -98,4 +99,4 @@ def test_connect(json):
 
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=port)
