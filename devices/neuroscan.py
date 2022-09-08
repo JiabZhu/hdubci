@@ -127,15 +127,15 @@ class NeuroScan:
         """
         self.__mark.append(mark)
 
-    def get_eeg_by_time(self, timestamp, interval):
+    def get_eeg_by_time(self, timestamp, time_window):
         """
         根据时间点获取脑电数据
         :param timestamp: 起始时间点(时间戳)
-        :param interval: 时间间隔(数据长度, 单位:秒)
+        :param time_window: 时间间隔(数据长度, 单位:秒)
         :return: 指定时间段的脑电数据
         """
         start_idx = int((timestamp - self.__start_time) * self.basic_info['nRate'])
-        end_idx = start_idx + interval * self.basic_info['nRate']
+        end_idx = start_idx + time_window * self.basic_info['nRate']
 
         while len(self.__EEG_data) < end_idx:
             pass
