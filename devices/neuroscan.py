@@ -101,7 +101,7 @@ class NeuroScan:
                     self.__EEG_data = data
                 else:
                     self.__EEG_data = np.append(self.__EEG_data, data, axis=0)
-        self.__EEG_data = self.__EEG_data.transpose()
+        # self.__EEG_data = self.__EEG_data.transpose()
 
     def save_data(self):
         self.__mark = np.array(self.__mark)
@@ -112,12 +112,32 @@ class NeuroScan:
         tag = self.__mark[:, 1]
         print(time_stamps[-1])
 
-        self.__EEG_data[self.basic_info['nEegChan']] = 0
+        self.__EEG_data[:, self.basic_info['nEegChan']] = 0
         for i in range(len(tag)):
-            self.__EEG_data[self.basic_info['nEegChan']][time_stamps[i]] = tag[i]
+            self.__EEG_data[time_stamps[i]][self.basic_info['nEegChan']] = tag[i]
 
         scipy.io.savemat('./data/2022-9-7.mat', {'data': self.__EEG_data})
         print('save EEG data finish! EEG data shape: ', self.__EEG_data.shape)
 
     def add_mark(self, mark):
-        self.__mark.append(mark)  # 添加mark, [当前时间戳, mark值]
+        """
+        添加mark, [当前时间戳, mark值]
+        :param mark:
+        :return:
+        """
+        self.__mark.append(mark)
+
+    def get_eeg_by_time(self, timestamp, interval):
+        """
+        根据时间点获取脑电数据
+        :param timestamp: 起始时间点(时间戳)
+        :param interval: 时间间隔(数据长度, 单位:秒)
+        :return: 指定时间段的脑电数据
+        """
+        start_idx = int((timestamp - self.__start_time) * self.basic_info['nRate'])
+        end_idx = start_idx + interval * self.basic_info['nRate']
+
+        while len(self.__EEG_data) < end_idx:
+            pass
+
+        return self.__EEG_data[start_idx:end_idx, :self.basic_info['nEegChan']]
