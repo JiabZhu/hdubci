@@ -7,7 +7,6 @@ import paradigms.rsvpoffline as rsvp_offline
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*')
 
-
 exp_paradigm = rsvp_offline.RsvpOffline()
 
 
@@ -93,6 +92,16 @@ def send_end_pic():
     """
     socketio.emit('end pic', 'show end pic')
     return "send end pic success"
+
+
+@app.route('/sendpredict', methods=['POST'])
+def send_predict():
+    """
+    返回模型预测结果
+    :return:
+    """
+    socketio.emit('predict res', request.get_json())
+    return "send predict result success"
 
 
 # @socketio.on('my event')
