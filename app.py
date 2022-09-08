@@ -3,6 +3,7 @@ from flask_socketio import SocketIO
 
 import util.config as config
 import paradigms.rsvpoffline as rsvp_offline
+import paradigms.rsvponline as rsvp_online
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*')
@@ -10,19 +11,23 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 exp_paradigm = rsvp_offline.RsvpOffline()
 
 
-@app.route('/rsvp_offline', methods=['GET'])
-def rsvp_paradigm_offline():
+@app.route('/study/<paradigm>', methods=['GET'])
+def rsvp_paradigm_offline(paradigm):
     """
-    选择离线RSVP实验范式
+    选择实验范式
     :return:
     """
     global exp_paradigm
-    exp_paradigm = rsvp_offline.RsvpOffline()
-    return 'rsvp study paradigm'
+    if paradigm == 'rsvp_offline':
+        exp_paradigm = rsvp_offline.RsvpOffline()
+    elif paradigm == 'rsvp_online':
+        exp_paradigm = rsvp_online.RsvpOnline()
+
+    return 'study paradigm ' + paradigm
 
 
-@app.route('/rsvp_offline/adddevice', methods=['POST'])
-def rsvp_offline_add_device():
+@app.route('/adddevice', methods=['POST'])
+def add_device():
     """
     添加设备
     :return:
@@ -30,21 +35,21 @@ def rsvp_offline_add_device():
     device_info = request.get_json()
     print(device_info)
     exp_paradigm.add_device(device_info)
-    return "rsvp paradigm add device"
+    return "add device"
 
 
-@app.route('/rsvp_offline/setstudy', methods=['POST'])
-def rsvp_offline_set_study():
+@app.route('/setstudy', methods=['POST'])
+def set_study():
     """
     设置实验参数
     :return:
     """
     study_info = request.get_json()
     exp_paradigm.set_study(study_info)
-    return "rsvp paradigm set study"
+    return "set study"
 
 
-@app.route('/rsvp_offline/readystudy', methods=['GET'])
+@app.route('/readystudy', methods=['GET'])
 def rsvp_offline_ready_study():
     """
     实验设置完毕准备实验，倒计时结束后正式开始实验
@@ -54,7 +59,7 @@ def rsvp_offline_ready_study():
     return 'study ready'
 
 
-@app.route('/rsvp_offline/startstudy', methods=['GET'])
+@app.route('/startstudy', methods=['GET'])
 def rsvp_offline_start_study():
     """
     正式开始实验
@@ -104,9 +109,9 @@ def send_predict():
     return "send predict result success"
 
 
-# @socketio.on('my event')
-# def test_connect(json):
-#     print('received json:' + str(json))
+@socketio.on('my event')
+def test_connect(json):
+    print('received json:' + str(json))
 
 
 if __name__ == '__main__':
