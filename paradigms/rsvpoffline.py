@@ -33,6 +33,7 @@ class RsvpOffline:
         self.target_pic_list = []
         self.non_target_pic_list = []
 
+    # noinspection DuplicatedCode
     def add_device(self, device_info):
         """
         添加设备
@@ -40,20 +41,21 @@ class RsvpOffline:
         :return:
         """
 
-        # 清空设备，清除前一次设备添加失败的影响
-        self.__device = []
+        print(device_info)
+
+        device = None
 
         # 添加设备
-        for i in range(device_info['num']):
-            if device_info['type'][i] == 'neuroscan':
-                self.__device.append(NeuroScan())
+        if device_info['type'] == 'neuroscan':
+            device = NeuroScan()
 
         # 连接设备
-        for i in range(device_info['num']):
-            self.__device[i].connect(device_info['ip'][i], device_info['port'][i])
-            # NeuroScan设备连接完毕后开始播放
-            if device_info['type'][i] == 'neuroscan':
-                self.__device[i].start_acquisition()
+        device.connect(device_info['ip'], device_info['port'])
+        # NeuroScan设备连接完毕后开始播放
+        if device_info['type'] == 'neuroscan':
+            device.start_acquisition()
+
+        self.__device.append(device)
 
     def set_study(self, study_info):
         """
