@@ -1,3 +1,4 @@
+from flask_cors import CORS
 from flask import Flask, request
 from flask_socketio import SocketIO
 
@@ -6,6 +7,7 @@ import paradigms.rsvpoffline as rsvp_offline
 import paradigms.rsvponline as rsvp_online
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 socketio = SocketIO(app, cors_allowed_origins='*')
 
 exp_paradigm = rsvp_offline.RsvpOffline()
