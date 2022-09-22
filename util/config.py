@@ -14,3 +14,6 @@ def get_port():
 
 def get_websocket_url():
     return config.get('default', 'websocket_url')
+
+def get_local_url():
+    return config.get('default', 'local_url')

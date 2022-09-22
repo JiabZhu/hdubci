@@ -13,8 +13,7 @@ class RsvpOffline:
     def __init__(self):
         super(RsvpOffline, self).__init__()
 
-        self.__websocket_url = config.get_websocket_url()
-
+        self.__url = config.get_local_url()
         self.__device = []
         self.__show_stimulus_thread = None
 
@@ -123,13 +122,13 @@ class RsvpOffline:
             self.__device[i].disconnect()
 
     def __request_show_fixation_pic(self):
-        requests.get(url=self.__websocket_url + 'sendfixpic')
+        requests.get(url=self.__url + 'sendfixpic')
 
     def __request_show_end_pic(self):
-        requests.get(url=self.__websocket_url + 'sendendpic')
+        requests.get(url=self.__url + 'sendendpic')
 
     def __request_show_sti_pic(self, pic):
-        requests.post(url=self.__websocket_url + 'sendstipic', json=json.dumps(pic))
+        requests.post(url=self.__url + 'sendstipic', json=json.dumps(pic))
 
     def __get_pic_name_mark(self, pic_info):
         idx = pic_info[0]
