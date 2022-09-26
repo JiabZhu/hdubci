@@ -129,4 +129,7 @@ dmypy.json
 .pyre/
 
 test.py
-./data/
+.idea
+data/
+model/
+.DS_Store
