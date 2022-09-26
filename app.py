@@ -117,4 +117,4 @@ def test_connect(json):
 
 
 if __name__ == '__main__':
-    socketio.run(app, host=config.get_host(), port=config.get_port())
+    socketio.run(app, host=config.get_host(), port=config.get_port(), allow_unsafe_werkzeug=True)
