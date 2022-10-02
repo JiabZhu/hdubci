@@ -81,24 +81,24 @@ def send_sti_pic():
     return "send sti pic success"
 
 
-@app.route('/sendfixpic', methods=['GET'])
-def send_fix_pic():
-    """
-    要求前端展示fixation阶段的图片
-    :return:
-    """
-    socketio.emit('fixation pic', 'show fixation pic')
-    return "send fixation pic success"
-
-
-@app.route('/sendendpic', methods=['GET'])
-def send_end_pic():
-    """
-    要求前端展示结束实验的图片
-    :return:
-    """
-    socketio.emit('end pic', 'show end pic')
-    return "send end pic success"
+# @app.route('/sendfixpic', methods=['GET'])
+# def send_fix_pic():
+#     """
+#     要求前端展示fixation阶段的图片
+#     :return:
+#     """
+#     socketio.emit('fixation pic', request.get_json())
+#     return "send fixation pic success"
+#
+#
+# @app.route('/sendendpic', methods=['GET'])
+# def send_end_pic():
+#     """
+#     要求前端展示结束实验的图片
+#     :return:
+#     """
+#     socketio.emit('end pic', request.get_json())
+#     return "send end pic success"
 
 
 @app.route('/sendpredict', methods=['POST'])

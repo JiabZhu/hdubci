@@ -13,6 +13,8 @@ class RsvpOnline:
     def __init__(self):
         super(RsvpOnline, self).__init__()
 
+        self.__url = config.get_local_url()
+
         self.__websocket_url = config.get_websocket_url()
 
         self.__device = []
@@ -27,6 +29,8 @@ class RsvpOnline:
         self.pic_list = []
 
         self.time_window = 1
+
+        self.__total_predict = 0
 
     # noinspection DuplicatedCode
     def add_device(self, device_info):
@@ -81,36 +85,41 @@ class RsvpOnline:
 
     def show_stimulus(self):
         print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), self.fixation_pic)
-        self.__request_show_fixation_pic()
+        # self.__request_show_fixation_pic()
+        self.__request_show_sti_pic(pic={'pic': self.fixation_pic, 'mark': -1})
         time.sleep(self.fixation_duration)
 
         for i in range(len(self.pic_list)):
             for dv_id in range(len(self.__device)):
-                self.__request_show_sti_pic(pic=self.pic_list[i])  # 向前端发送刺激图片
+                self.__request_show_sti_pic(pic={'pic': self.pic_list[i], 'mark': -1})  # 向前端发送刺激图片
                 # 预测该刺激图片属于哪一类
-                __predict_thread = Thread(target=self.__model_predict, args=(i, time.time(),))
+                __predict_thread = Thread(target=self.__model_predict, args=(self.pic_list[i], time.time(),))
                 __predict_thread.start()
 
                 print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), self.pic_list[i])
                 time.sleep(self.pic_duration)
 
-        self.__request_show_end_pic()
+        # self.__request_show_end_pic()
+        self.__request_show_sti_pic(pic={'pic': self.end_pic, 'mark': -1})
+
+        while(self.__total_predict < len(self.pic_list)):
+            pass
 
         # 断开设备连接
         for i in range(len(self.__device)):
             self.__device[i].stop_send_data()
             self.__device[i].disconnect()
 
-    def __request_show_fixation_pic(self):
-        requests.get(url=self.__websocket_url + 'sendfixpic')
-
-    def __request_show_end_pic(self):
-        requests.get(url=self.__websocket_url + 'sendendpic')
+    # def __request_show_fixation_pic(self):
+    #     requests.get(url=self.__websocket_url + 'sendfixpic')
+    #
+    # def __request_show_end_pic(self):
+    #     requests.get(url=self.__websocket_url + 'sendendpic')
 
     def __request_show_sti_pic(self, pic):
-        requests.post(url=self.__websocket_url + 'sendstipic', json=json.dumps(pic))
+        requests.post(url=self.__url + 'sendstipic', json=json.dumps(pic))
 
-    def __model_predict(self, idx, timestamp):
+    def __model_predict(self, pic, timestamp):
         # 获取数据
         data = []
         for i in range(len(self.__device)):
@@ -120,6 +129,8 @@ class RsvpOnline:
         res = {}
         # 模型预测
         for i in range(len(data)):
-            res = {'pic_idx': idx, 'predict': self.__model(data[i])}
+            res = {'pic': pic, 'predict': self.__model(data[i])}
 
-        requests.post(url=self.__websocket_url + 'sendpredict', json=json.dumps(res))
+        self.__total_predict += 1
+
+        requests.post(url=self.__url + 'sendpredict', json=json.dumps(res))

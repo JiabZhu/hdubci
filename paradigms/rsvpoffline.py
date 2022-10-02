@@ -62,7 +62,7 @@ class RsvpOffline:
         :param study_info: 实验设置信息
         :return:
         """
-        print(study_info)
+        # print(study_info)
         self.target_proportion = study_info['target_proportion']
         self.non_target_proportion = study_info['non_target_proportion']
 
@@ -90,7 +90,8 @@ class RsvpOffline:
 
     def show_stimulus(self):
         print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), self.fixation_pic)
-        self.__request_show_fixation_pic()
+        # self.__request_show_fixation_pic()
+        self.__request_show_sti_pic(pic={'pic': self.fixation_pic, 'mark': -1})
         time.sleep(self.fixation_duration)
 
         cnt_trial = 0
@@ -113,7 +114,8 @@ class RsvpOffline:
                 if not cnt_trial < self.trial_num:
                     break
 
-        self.__request_show_end_pic()
+        # self.__request_show_end_pic()
+        self.__request_show_sti_pic(pic={'pic': self.end_pic, 'mark': -1})
 
         # 保存数据，断开连接
         for i in range(len(self.__device)):
@@ -121,11 +123,11 @@ class RsvpOffline:
             self.__device[i].save_data()
             self.__device[i].disconnect()
 
-    def __request_show_fixation_pic(self):
-        requests.get(url=self.__url + 'sendfixpic')
-
-    def __request_show_end_pic(self):
-        requests.get(url=self.__url + 'sendendpic')
+    # def __request_show_fixation_pic(self, pic):
+    #     requests.get(url=self.__url + 'sendfixpic')
+    #
+    # def __request_show_end_pic(self, pic):
+    #     requests.get(url=self.__url + 'sendendpic')
 
     def __request_show_sti_pic(self, pic):
         requests.post(url=self.__url + 'sendstipic', json=json.dumps(pic))
@@ -136,4 +138,4 @@ class RsvpOffline:
         if mark == self.target_mark:
             return {'pic': self.target_pic_list[idx], 'mark': mark}
         elif mark == self.non_target_mark:
-            return dict({'pic': self.non_target_pic_list[idx], 'mark': mark})
+            return {'pic': self.non_target_pic_list[idx], 'mark': mark}
