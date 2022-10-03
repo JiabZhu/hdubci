@@ -1,0 +1,1 @@
+export default { ws: {}, setWs: function (newWs:any) { this.ws = newWs } }

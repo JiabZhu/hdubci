@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<body>
+    <img src="" alt="" id="img">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+        integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+        crossorigin="anonymous"></script>
+    <!-- <script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script> -->
+    <!-- <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-2.1.4.min.js"></script> -->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        console.log(location.protocol)
+        // var socket = io.connect('ws://10.253.32.92:19782');
+        var socket = io.connect('ws://127.0.0.1:19782');
+        socket.on('connect', function () {
+            socket.emit('my event', { data: 'I\'m connected!' });
+        });
+
+        socket.on('sti pic', function (msg) {
+            var t = JSON.parse(msg)
+            // console.log(t)
+            $('#img').attr("src", t[pic])
+            // document.getElementById("img").setAttribute("src",msg.pic)
+        });
+        socket.on('fixation pic', function (msg) {
+            //    console.log(msg)
+            var t = JSON.parse(msg)
+            $('#img').attr("src", t[pic])
+            // document.getElementById("img").setAttribute("src",msg.pic)
+        });
+        socket.on('end pic', function (msg) {
+            console.log(msg)
+            var t = JSON.parse(msg)
+
+            $('#img').attr("src", t[pic])
+            // document.getElementById("img").setAttribute("src",msg.pic)
+        });
+    </script>
+</body>
+
+</html>

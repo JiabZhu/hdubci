@@ -1,0 +1,88 @@
+<template>
+    <div class="home">
+        <el-container>
+            <el-header>
+                <el-row :gutter="20">
+                    <el-col :span="4"><img src="../assets/BCI_title.jpg" class="logo" /></el-col>
+                </el-row>
+            </el-header>
+            <el-divider />
+            <el-container>
+                <el-aside width="200px">Aside</el-aside>
+                <el-main>
+                    <el-aside width="200px">Aside</el-aside>
+                    <el-main>Main</el-main>
+                </el-main>
+            </el-container>
+        </el-container>
+    </div>
+</template>
+  
+<script lang="ts">
+import { defineComponent, reactive, ref } from "vue";
+import { useRouter } from 'vue-router'
+import { rsvpOffline, rsvpOnline } from '../request/api'
+
+export default defineComponent({
+    name: "AdminView",
+    setup() {
+        const router = useRouter()
+        const dialogFormVisible = ref(false)
+        const formLabelWidth = '140px'
+        const form = reactive({
+            region: '',
+        })
+        return { form, dialogFormVisible, formLabelWidth, }
+    },
+    components: {},
+});
+</script>
+<style lang="scss" scoped>
+
+html {
+    position: relative;
+}
+
+.el-header {
+    height: 80px;
+
+    .logo {
+        height: 80px;
+    }
+}
+
+.neuro_box {
+    width: 600px;
+    overflow: hidden;
+}
+
+.common-layout {
+    position: absolute;
+    left: 15%;
+    top: 20%;
+}
+
+.neuro1 {
+    width: 100%;
+    height: 700px;
+}
+
+.gtec {
+    width: 100%;
+    height: 300px;
+}
+
+.emotive {
+    width: 100%;
+    height: 300px;
+}
+
+.neuro2 {
+    width: 600px;
+}
+
+.el-card {
+    --el-card-padding: 0px;
+}
+</style>
+  
