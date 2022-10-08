@@ -5,6 +5,7 @@ from threading import Thread
 
 import util.config as config
 from devices.neuroscan import NeuroScan
+from devices.eyetracker import EyeTracker
 
 from model.model import Net
 
@@ -46,12 +47,13 @@ class RsvpOnline:
         # 添加设备
         if device_info['type'] == 'neuroscan':
             device = NeuroScan()
-
-        # 连接设备
-        device.connect(device_info['ip'], device_info['port'])
-        # NeuroScan设备连接完毕后开始播放
-        if device_info['type'] == 'neuroscan':
-            device.start_acquisition()
+            device.connect(device_info['ip'], device_info['port']) # 连接设备
+            device.start_acquisition() # NeuroScan设备连接完毕后开始播放
+        elif device_info['type'] == 'eyetracker':
+            device = EyeTracker()
+            device.connect(device_info['send_ip'], device_info['send_port'],
+                           device_info['recv_ip'], device_info['recv_port'])
+            device.calibration() # 校准
 
         self.__device.append(device)
 
@@ -90,14 +92,17 @@ class RsvpOnline:
         time.sleep(self.fixation_duration)
 
         for i in range(len(self.pic_list)):
-            for dv_id in range(len(self.__device)):
-                self.__request_show_sti_pic(pic={'pic': self.pic_list[i], 'mark': -1})  # 向前端发送刺激图片
-                # 预测该刺激图片属于哪一类
-                __predict_thread = Thread(target=self.__model_predict, args=(self.pic_list[i], time.time(),))
-                __predict_thread.start()
+            # 向前端发送刺激图片
+            self.__request_show_sti_pic(pic={'pic': self.pic_list[i], 'mark': -1})
+            time.sleep(self.pic_duration)
 
-                print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), self.pic_list[i])
-                time.sleep(self.pic_duration)
+            # for dv_id in range(len(self.__device)):
+            # 预测该刺激图片属于哪一类
+            __predict_thread = Thread(target=self.__model_predict, args=(self.pic_list[i], time.time(),))
+            __predict_thread.start()
+
+            print(time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()), self.pic_list[i])
+
 
         # self.__request_show_end_pic()
         self.__request_show_sti_pic(pic={'pic': self.end_pic, 'mark': -1})
@@ -121,15 +126,22 @@ class RsvpOnline:
 
     def __model_predict(self, pic, timestamp):
         # 获取数据
-        data = []
+        eeg_data = []
+        eye_data = []
         for i in range(len(self.__device)):
             if isinstance(self.__device[i], NeuroScan):
-                data.append(self.__device[i].get_eeg_by_time(timestamp, self.time_window))
+                eeg_data = self.__device[i].get_eeg_by_time(timestamp, self.time_window)
+            elif isinstance(self.__device[i], EyeTracker):
+                eye_data = self.__device[i].get_eye_by_time(timestamp, self.time_window)
+
+        predict = self.__model(eeg_data)
+        # hot_pic = d(pic, eye_data)
+        hot_pic = []
 
         res = {}
         # 模型预测
-        for i in range(len(data)):
-            res = {'pic': pic, 'predict': self.__model(data[i])}
+        for i in range(len(eeg_data)):
+            res = {'pic': hot_pic, 'predict': predict}
 
         self.__total_predict += 1
 
